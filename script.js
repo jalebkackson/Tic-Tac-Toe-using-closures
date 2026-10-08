@@ -66,6 +66,9 @@ function GameController(
   console.log(`Start Game, ${activePlayer.name}s turn`);
   gameboard.printBoard();
 
+  // returns activeplayer for use in domcontrol()
+  const getActivePlayer = () => activePlayer;
+
   const switchPlayerTurn = () => {
     if (activePlayer === players[0]) {
       activePlayer = players[1];
@@ -114,6 +117,7 @@ function GameController(
       console.log("Cell is taken dumbass try again");
     }
     gameboard.printBoard();
+    display.displayBoard();
     return;
   };
 
@@ -123,6 +127,7 @@ function GameController(
     const playerWins = () => {
       console.log(`${activePlayer.name} wins`);
       gameboard.printBoard();
+      display.displayBoard();
     };
     // spot for possible playerLoses function
 
@@ -165,7 +170,35 @@ function GameController(
     }
     return false;
   };
-  return { playRound };
+  return {
+    playRound,
+    getBoardValues: gameboard.getBoardValues,
+    getActivePlayer,
+  };
 }
 
 const game = GameController();
+
+const userBoard = document.querySelector("#gameboard");
+
+function DomControl() {
+  const displayBoard = () => {
+    userBoard.replaceChildren();
+    game.getBoardValues().forEach((row, rowIndex) => {
+      row.forEach((col, colIndex) => {
+        const cell = document.createElement("button");
+        cell.textContent = col;
+        userBoard.appendChild(cell);
+        cell.classList.add("cell");
+        cell.addEventListener("click", (e) => {
+          e.preventDefault;
+          game.playRound(rowIndex, colIndex);
+        });
+      });
+    });
+  };
+
+  return { displayBoard };
+}
+const display = DomControl();
+display.displayBoard();
