@@ -50,6 +50,7 @@ function GameController(
   playerTwoName = "Player Two"
 ) {
   const gameboard = Gameboard();
+  let gameStatus = "playing";
 
   const players = [
     {
@@ -117,7 +118,6 @@ function GameController(
       console.log("Cell is taken dumbass try again");
     }
     gameboard.printBoard();
-    display.displayBoard();
     return;
   };
 
@@ -127,7 +127,6 @@ function GameController(
     const playerWins = () => {
       console.log(`${activePlayer.name} wins`);
       gameboard.printBoard();
-      display.displayBoard();
     };
     // spot for possible playerLoses function
 
@@ -137,6 +136,7 @@ function GameController(
       values[row][col] === values[1][1] &&
       values[row][col] === values[2][2]
     ) {
+      gameStatus = "won";
       playerWins();
       return true;
     }
@@ -147,18 +147,21 @@ function GameController(
       values[row][col] === values[1][1] &&
       values[row][col] === values[2][0]
     ) {
+      gameStatus = "won";
       playerWins();
       return true;
     }
 
     // check ROWS
     if (values[row].every((value) => value === activePlayer.token)) {
+      gameStatus = "won";
       playerWins();
       return true;
     }
     // check COLs
     const columns = [values[0][col], values[1][col], values[2][col]];
     if (columns.every((value) => value === activePlayer.token)) {
+      gameStatus = "won";
       playerWins();
       return true;
     }
@@ -166,22 +169,29 @@ function GameController(
     if (values.every((row) => row.every((value) => value !== ""))) {
       console.log("Tie Game, no winners");
       gameboard.printBoard();
+      gameStatus = "tie";
       isGameOver = true;
     }
     return false;
   };
+
+  const getGameStatus = () => gameStatus;
+
   return {
     playRound,
     getBoardValues: gameboard.getBoardValues,
     getActivePlayer,
+    getGameStatus,
   };
 }
 
 const game = GameController();
 
-const userBoard = document.querySelector("#gameboard");
-
 function DomControl() {
+  const userBoard = document.querySelector("#gameboard");
+  const message = document.querySelector(".control-message");
+  message.textContent = `${game.getActivePlayer().token}'s turn`;
+
   const displayBoard = () => {
     userBoard.replaceChildren();
     game.getBoardValues().forEach((row, rowIndex) => {
@@ -191,14 +201,18 @@ function DomControl() {
         userBoard.appendChild(cell);
         cell.classList.add("cell");
         cell.addEventListener("click", (e) => {
-          e.preventDefault;
           game.playRound(rowIndex, colIndex);
+          displayBoard();
+          console.log(game.getGameStatus());
+          message.textContent = `${game.getActivePlayer().token}'s turn`;
         });
       });
     });
   };
 
-  return { displayBoard };
+  const controlMessage = () => {};
+
+  return { displayBoard, controlMessage };
 }
 const display = DomControl();
 display.displayBoard();
