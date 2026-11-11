@@ -70,6 +70,11 @@ function GameController(
   // returns activeplayer for use in domcontrol()
   const getActivePlayer = () => activePlayer;
 
+  // returns nonActive player for use in domcontrol()
+  const getNonActivePlayer = () => {
+    return players.find((player) => player !== activePlayer);
+  };
+
   const switchPlayerTurn = () => {
     if (activePlayer === players[0]) {
       activePlayer = players[1];
@@ -181,30 +186,100 @@ function GameController(
     playRound,
     getBoardValues: gameboard.getBoardValues,
     getActivePlayer,
+    getNonActivePlayer,
     getGameStatus,
   };
 }
 
-const game = GameController();
-
 function DomControl() {
+  let game;
   const userBoard = document.querySelector("#gameboard");
+
+  const startingDailog = document.querySelector("#start-dialog");
+  const player1Input = document.querySelector("#player1");
+  const player2Input = document.querySelector("#player2");
+  const startGameForm = document.querySelector(".start-menu");
+
+  const resetBtn = document.querySelector("#reset-btn");
   const message = document.querySelector(".control-message");
-  message.textContent = `${game.getActivePlayer().token}'s turn`;
+  const replayDialog = document.querySelector("#replay-dialog");
+  const endGameMsg1 = document.querySelector("#end-message-1");
+  const endGameMsg2 = document.querySelector("#end-message-2");
+  const replayBtn = document.querySelector("#replay-btn");
+
+  startingDailog.showModal();
+
+  startGameForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const nameOne = player1Input.value.trim();
+    const nameTwo = player2Input.value.trim();
+    startingDailog.close();
+    message.hidden = false;
+    resetBtn.hidden = false;
+    gameboard.hidden = false;
+
+    game = GameController(nameOne, nameTwo);
+    message.textContent = `Start Game! ${game.getActivePlayer().name}'s turn: ${
+      game.getActivePlayer().token
+    }`;
+    displayBoard();
+  });
 
   const displayBoard = () => {
     userBoard.replaceChildren();
+
+    const setStatusMessage = () => {
+      if (game.getGameStatus() === "playing") {
+        message.textContent = `${game.getActivePlayer().name}'s Turn: ${
+          game.getActivePlayer().token
+        }`;
+      } else if (game.getGameStatus() === "won") {
+        message.textContent = `${game.getActivePlayer().name} WINS!`;
+        endGameMsg1.textContent = `${game.getActivePlayer().name} WINS!`;
+        endGameMsg2.textContent = `${game.getNonActivePlayer().name} is gay`;
+        replayDialog.showModal();
+      } else if (game.getGameStatus() === "tie") {
+        message.textContent = `No Winner, Tie Game`;
+        replayDialog.showModal();
+      }
+    };
+
+    const resetGame = () => {
+      game = GameController(
+        player1Input.value.trim(),
+        player2Input.value.trim()
+      );
+      displayBoard();
+      replayDialog.close();
+      message.textContent = `${game.getActivePlayer().name}'s Turn: ${
+        game.getActivePlayer().token
+      }`;
+    };
+
+    replayBtn.addEventListener("click", (e) => {
+      resetGame();
+    });
+    resetBtn.addEventListener("click", (e) => {
+      resetGame();
+    });
+
     game.getBoardValues().forEach((row, rowIndex) => {
       row.forEach((col, colIndex) => {
         const cell = document.createElement("button");
         cell.textContent = col;
         userBoard.appendChild(cell);
         cell.classList.add("cell");
+        // style X's and O's
+        if (col === "X") {
+          cell.classList.add("token-x");
+        } else if (col === "O") {
+          cell.classList.add("token-o");
+        }
         cell.addEventListener("click", (e) => {
           game.playRound(rowIndex, colIndex);
           displayBoard();
           console.log(game.getGameStatus());
-          message.textContent = `${game.getActivePlayer().token}'s turn`;
+          setStatusMessage();
         });
       });
     });
@@ -215,4 +290,3 @@ function DomControl() {
   return { displayBoard, controlMessage };
 }
 const display = DomControl();
-display.displayBoard();

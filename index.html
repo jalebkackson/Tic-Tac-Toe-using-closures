@@ -9,9 +9,34 @@
   <body>
     <div class="content">
       <h1>Tic-Tac-Toe</h1>
-      <h2 class="control-message"></h2>
-      <div id="gameboard"></div>
-      <script src="script.js"></script>
+      <dialog id="start-dialog">
+        <form class="start-menu">
+          <input
+            type="text"
+            placeholder="Player One Name.."
+            id="player1"
+            required
+          />
+          <input
+            type="text"
+            placeholder="Player Two Name.."
+            id="player2"
+            required
+          />
+          <button type="submit" id="start-game">Start Game</button>
+        </form>
+      </dialog>
+
+      <button id="reset-btn" hidden>Reset Board</button>
+      <h2 class="control-message" hidden></h2>
+      <div id="gameboard" hidden></div>
     </div>
+    <dialog id="replay-dialog">
+      <h1 id="end-message-1"></h1>
+      <h2 id="end-message-2"></h2>
+      <button id="replay-btn" type="button">Replay?</button>
+    </dialog>
+
+    <script src="script.js"></script>
   </body>
 </html>
