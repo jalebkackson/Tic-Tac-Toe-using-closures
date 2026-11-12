@@ -34,15 +34,14 @@ function Gameboard() {
     });
   };
 
-  const printBoard = () => {
-    console.log(getBoardValues());
-  };
-
   const placeTokenAt = (row, col, token) => {
     return board[row][col].placeToken(token);
   };
 
-  return { getBoardValues, printBoard, placeTokenAt };
+  return {
+    getBoardValues,
+    placeTokenAt,
+  };
 }
 
 function GameController(
@@ -64,9 +63,6 @@ function GameController(
   ];
 
   let activePlayer = players[0];
-  console.log(`Start Game, ${activePlayer.name}s turn`);
-
-  gameboard.printBoard();
 
   // returns activeplayer for use in domcontrol()
   const getActivePlayer = () => activePlayer;
@@ -100,7 +96,7 @@ function GameController(
       !Number.isInteger(row) ||
       !Number.isInteger(col)
     ) {
-      console.log("Invalid Move Try again");
+      console.warn("Invalid board coordinates:", { row, col });
       return;
     }
 
@@ -119,21 +115,13 @@ function GameController(
         return;
       }
       switchPlayerTurn();
-      console.log(`Move Successful, ${activePlayer.name}s turn`);
-    } else {
-      console.log("Cell is taken dumbass try again");
     }
-    gameboard.printBoard();
     return;
   };
 
   const checkWinner = (row, col) => {
     const values = gameboard.getBoardValues();
 
-    const playerWins = () => {
-      console.log(`${activePlayer.name} wins`);
-      gameboard.printBoard();
-    };
     // spot for possible playerLoses function
 
     // check RIGHT diagonals
@@ -143,7 +131,6 @@ function GameController(
       values[row][col] === values[2][2]
     ) {
       gameStatus = "won";
-      playerWins();
       return true;
     }
 
@@ -154,27 +141,22 @@ function GameController(
       values[row][col] === values[2][0]
     ) {
       gameStatus = "won";
-      playerWins();
       return true;
     }
 
     // check ROWS
     if (values[row].every((value) => value === activePlayer.token)) {
       gameStatus = "won";
-      playerWins();
       return true;
     }
     // check COLs
     const columns = [values[0][col], values[1][col], values[2][col]];
     if (columns.every((value) => value === activePlayer.token)) {
       gameStatus = "won";
-      playerWins();
       return true;
     }
     //check TIE
     if (values.every((row) => row.every((value) => value !== ""))) {
-      console.log("Tie Game, no winners");
-      gameboard.printBoard();
       gameStatus = "tie";
       isGameOver = true;
     }
@@ -219,7 +201,7 @@ function DomControl() {
     const nameOne = player1Input.value.trim();
     const nameTwo = player2Input.value.trim();
     if (!nameOne || !nameTwo) {
-      alert("Enter a name ya stupid bitch");
+      alert("Enter a Valid Name");
       return;
     }
     startingDailog.close();
@@ -252,12 +234,10 @@ function DomControl() {
       } else if (game.getGameStatus() === "won") {
         message.textContent = `${game.getActivePlayer().name} WINS!`;
         endGameMsg1.textContent = `${game.getActivePlayer().name} WINS!`;
-        endGameMsg2.textContent = `${game.getNonActivePlayer().name} is gay`;
-        endGameMsg2.hidden = false;
         replayDialog.showModal();
       } else if (game.getGameStatus() === "tie") {
         message.textContent = `No Winner, Tie Game`;
-        endGameMsg1.textContent = `Tie game, both gay`;
+        endGameMsg1.textContent = `Tie game, no winner`;
         endGameMsg2.hidden = true;
         replayDialog.showModal();
       }
@@ -278,17 +258,17 @@ function DomControl() {
         cell.addEventListener("click", (e) => {
           game.playRound(rowIndex, colIndex);
           displayBoard();
-          console.log(game.getGameStatus());
           setStatusMessage();
         });
       });
     });
-    return resetGame;
   };
 
   const resetGame = () => {
     game = GameController(player1Input.value.trim(), player2Input.value.trim());
     displayBoard();
+    message.classList.remove("o-turn");
+    message.classList.add("x-turn");
     replayDialog.close();
     message.textContent = `${game.getActivePlayer().name}'s Turn: ${
       game.getActivePlayer().token
@@ -302,8 +282,6 @@ function DomControl() {
     resetGame();
   });
 
-  const controlMessage = () => {};
-
-  return { displayBoard, controlMessage };
+  return { displayBoard };
 }
 const display = DomControl();

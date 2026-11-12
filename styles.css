@@ -36,7 +36,6 @@
   --radius-cell: 12%;
 
   --dialog-border-radius: 8px;
-  --dialog-background: rgba(12, 12, 22, 0.589);
 }
 
 body {
@@ -55,7 +54,6 @@ body {
 
 .content {
   min-height: 100vh;
-  margin: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -92,7 +90,6 @@ body {
   );
   color: var(--color-message);
   font-family: var(--font-ui);
-  font-size: clamp(0.8rem, 2.5vw, 1rem);
   font-weight: 600;
   font-size: 30px;
   line-height: 1.4;
@@ -181,7 +178,6 @@ body {
   left: 16%;
   border: min(20px, 3.5vw) solid #21b9ff;
   border-radius: 50%;
-  background: transparent;
   box-shadow: 0 -1px 2px 1px #9af3ff, 0 2px 3px 1px #008cff,
     inset 0 2px 3px #0066cc, inset 0 -2px 3px #80dcff, 0 0 18px #008cff99,
     inset 0 0 16px #008cff66;
@@ -242,7 +238,6 @@ body {
 
 .start-menu input {
   height: 40px;
-  width: auto;
   border: var(--border-default);
   border-radius: var(--dialog-border-radius);
   background: rgba(12, 47, 54, 0.792);
@@ -261,7 +256,6 @@ body {
 
 .start-menu input::placeholder {
   color: rgba(0, 242, 255, 0.663);
-  font-size: 15px;
 }
 
 .start-menu button,
