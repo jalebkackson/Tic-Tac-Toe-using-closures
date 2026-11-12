@@ -65,6 +65,7 @@ function GameController(
 
   let activePlayer = players[0];
   console.log(`Start Game, ${activePlayer.name}s turn`);
+
   gameboard.printBoard();
 
   // returns activeplayer for use in domcontrol()
@@ -209,19 +210,28 @@ function DomControl() {
 
   startingDailog.showModal();
 
+  startingDailog.addEventListener("cancel", (e) => {
+    e.preventDefault();
+  });
+
   startGameForm.addEventListener("submit", (e) => {
     e.preventDefault();
     const nameOne = player1Input.value.trim();
     const nameTwo = player2Input.value.trim();
+    if (!nameOne || !nameTwo) {
+      alert("Enter a name ya stupid bitch");
+      return;
+    }
     startingDailog.close();
     message.hidden = false;
     resetBtn.hidden = false;
-    gameboard.hidden = false;
+    userBoard.hidden = false;
 
     game = GameController(nameOne, nameTwo);
     message.textContent = `Start Game! ${game.getActivePlayer().name}'s turn: ${
       game.getActivePlayer().token
     }`;
+    message.classList.add(`${game.getActivePlayer().token.toLowerCase()}-turn`);
     displayBoard();
   });
 
@@ -230,6 +240,12 @@ function DomControl() {
 
     const setStatusMessage = () => {
       if (game.getGameStatus() === "playing") {
+        message.classList.add(
+          `${game.getActivePlayer().token.toLowerCase()}-turn`
+        );
+        message.classList.remove(
+          `${game.getNonActivePlayer().token.toLowerCase()}-turn`
+        );
         message.textContent = `${game.getActivePlayer().name}'s Turn: ${
           game.getActivePlayer().token
         }`;
@@ -237,31 +253,15 @@ function DomControl() {
         message.textContent = `${game.getActivePlayer().name} WINS!`;
         endGameMsg1.textContent = `${game.getActivePlayer().name} WINS!`;
         endGameMsg2.textContent = `${game.getNonActivePlayer().name} is gay`;
+        endGameMsg2.hidden = false;
         replayDialog.showModal();
       } else if (game.getGameStatus() === "tie") {
         message.textContent = `No Winner, Tie Game`;
+        endGameMsg1.textContent = `Tie game, both gay`;
+        endGameMsg2.hidden = true;
         replayDialog.showModal();
       }
     };
-
-    const resetGame = () => {
-      game = GameController(
-        player1Input.value.trim(),
-        player2Input.value.trim()
-      );
-      displayBoard();
-      replayDialog.close();
-      message.textContent = `${game.getActivePlayer().name}'s Turn: ${
-        game.getActivePlayer().token
-      }`;
-    };
-
-    replayBtn.addEventListener("click", (e) => {
-      resetGame();
-    });
-    resetBtn.addEventListener("click", (e) => {
-      resetGame();
-    });
 
     game.getBoardValues().forEach((row, rowIndex) => {
       row.forEach((col, colIndex) => {
@@ -283,7 +283,24 @@ function DomControl() {
         });
       });
     });
+    return resetGame;
   };
+
+  const resetGame = () => {
+    game = GameController(player1Input.value.trim(), player2Input.value.trim());
+    displayBoard();
+    replayDialog.close();
+    message.textContent = `${game.getActivePlayer().name}'s Turn: ${
+      game.getActivePlayer().token
+    }`;
+  };
+
+  replayBtn.addEventListener("click", (e) => {
+    resetGame();
+  });
+  resetBtn.addEventListener("click", (e) => {
+    resetGame();
+  });
 
   const controlMessage = () => {};
 
